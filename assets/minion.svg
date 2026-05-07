@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 320" role="img" aria-label="Minion mascot">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE45C"/>
+      <stop offset="100%" stop-color="#F5C518"/>
+    </linearGradient>
+    <linearGradient id="denimGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2C4FA8"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Hair tufts -->
+  <g stroke="#3A2A18" stroke-width="3" stroke-linecap="round">
+    <line x1="80" y1="22" x2="76" y2="6"/>
+    <line x1="100" y1="18" x2="100" y2="0"/>
+    <line x1="120" y1="22" x2="124" y2="6"/>
+    <line x1="92" y1="20" x2="88" y2="4"/>
+    <line x1="108" y1="20" x2="112" y2="4"/>
+  </g>
+
+  <!-- Body capsule -->
+  <rect x="40" y="30" width="120" height="220" rx="60" ry="60" fill="url(#bodyGrad)" stroke="#7A5A0A" stroke-width="2"/>
+
+  <!-- Overalls -->
+  <path d="M40 160 L40 250 Q40 280 70 290 L130 290 Q160 280 160 250 L160 160 Z" fill="url(#denimGrad)" stroke="#0F2050" stroke-width="2"/>
+  <!-- Overall straps -->
+  <path d="M62 90 L62 165" stroke="#0F2050" stroke-width="6" fill="none"/>
+  <path d="M138 90 L138 165" stroke="#0F2050" stroke-width="6" fill="none"/>
+  <!-- Pocket -->
+  <rect x="80" y="180" width="40" height="36" fill="none" stroke="#0F2050" stroke-width="3"/>
+  <!-- Pocket "G" logo -->
+  <text x="100" y="207" text-anchor="middle" font-family="Verdana, sans-serif" font-weight="900" font-size="24" fill="#0F2050">G</text>
+  <!-- Buttons -->
+  <circle cx="62" cy="166" r="5" fill="#FFD93D" stroke="#0F2050" stroke-width="2"/>
+  <circle cx="138" cy="166" r="5" fill="#FFD93D" stroke="#0F2050" stroke-width="2"/>
+
+  <!-- Goggle strap -->
+  <rect x="38" y="92" width="124" height="14" fill="#3A2A18"/>
+  <!-- Goggles -->
+  <circle cx="78" cy="99" r="28" fill="#E5E5E5" stroke="#2A2A2A" stroke-width="6"/>
+  <circle cx="122" cy="99" r="28" fill="#E5E5E5" stroke="#2A2A2A" stroke-width="6"/>
+  <!-- Eyes -->
+  <circle cx="78" cy="99" r="14" fill="#fff" stroke="#3A2A18" stroke-width="1"/>
+  <circle cx="122" cy="99" r="14" fill="#fff" stroke="#3A2A18" stroke-width="1"/>
+  <circle cx="80" cy="100" r="6" fill="#5B3A1A"/>
+  <circle cx="124" cy="100" r="6" fill="#5B3A1A"/>
+  <circle cx="82" cy="98" r="2" fill="#fff"/>
+  <circle cx="126" cy="98" r="2" fill="#fff"/>
+
+  <!-- Mouth (smile) -->
+  <path d="M82 145 Q100 162 118 145" stroke="#3A2A18" stroke-width="3" fill="#3A2A18" stroke-linecap="round"/>
+  <path d="M88 150 Q100 158 112 150" fill="#FF6B6B"/>
+
+  <!-- Arms -->
+  <path d="M40 150 Q15 175 25 215" stroke="url(#bodyGrad)" stroke-width="22" fill="none" stroke-linecap="round"/>
+  <path d="M160 150 Q185 175 175 215" stroke="url(#bodyGrad)" stroke-width="22" fill="none" stroke-linecap="round"/>
+  <!-- Gloves -->
+  <circle cx="25" cy="218" r="14" fill="#1A1A1A"/>
+  <circle cx="175" cy="218" r="14" fill="#1A1A1A"/>
+
+  <!-- Feet -->
+  <ellipse cx="74" cy="298" rx="22" ry="10" fill="#1A1A1A"/>
+  <ellipse cx="126" cy="298" rx="22" ry="10" fill="#1A1A1A"/>
+</svg>

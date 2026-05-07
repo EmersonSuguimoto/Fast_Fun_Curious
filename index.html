@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bello! English Meeting</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Floating banana background -->
+  <div class="bg-bananas" aria-hidden="true">
+    <span class="banana b1">🍌</span>
+    <span class="banana b2">🍌</span>
+    <span class="banana b3">🍌</span>
+    <span class="banana b4">🍌</span>
+    <span class="banana b5">🍌</span>
+    <span class="banana b6">🍌</span>
+  </div>
+
+  <!-- HUD -->
+  <header class="hud">
+    <div class="brand">
+      <img src="assets/minion.svg" class="brand-mascot" alt="">
+      <span>Bello! English Meeting</span>
+    </div>
+    <div class="score-badge" title="Bananas earned">
+      <span class="score-icon">🍌</span>
+      <span id="score">0</span>
+    </div>
+  </header>
+
+  <!-- Feedback overlays -->
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+  <div id="bello-bubble" class="bello-bubble" aria-hidden="true">Bello!</div>
+
+  <main id="deck">
+
+    <!-- 1. Welcome -->
+    <section class="slide active" data-slide="1" data-game="welcome">
+      <div class="welcome-stage">
+        <img src="assets/minion.svg" class="mascot mascot-wave" alt="">
+        <img src="assets/minion.svg" class="mascot mascot-bounce" alt="">
+        <img src="assets/minion.svg" class="mascot mascot-wave" alt="">
+      </div>
+      <h1 class="title-xl">Bello! 👋</h1>
+      <p class="subtitle">Welcome to our English Meeting</p>
+      <p class="hint">Get ready for 12 mini-games. Earn 🍌 for every correct answer!</p>
+      <button class="big-btn pulse" data-action="next">START</button>
+    </section>
+
+    <!-- 2. Vocabulary Match -->
+    <section class="slide" data-slide="2" data-game="vocabMatch">
+      <h2 class="slide-title">🍌 Vocabulary Match</h2>
+      <p class="slide-sub">Click a <b>word</b>, then click its matching <b>picture</b>.</p>
+      <div class="match-grid">
+        <div class="match-col" id="vm-words"></div>
+        <div class="match-col" id="vm-icons"></div>
+      </div>
+      <p class="slide-foot" id="vm-status">Pairs left: <span>5</span></p>
+    </section>
+
+    <!-- 3. Fill the Blank -->
+    <section class="slide" data-slide="3" data-game="fillBlank">
+      <h2 class="slide-title">✏️ Fill the Blank</h2>
+      <p class="slide-sub">Pick the correct word to complete the sentence.</p>
+      <div class="sentence" id="fb-sentence"></div>
+      <div class="options" id="fb-options"></div>
+      <button class="ghost-btn" data-action="fb-next">Next sentence ➜</button>
+    </section>
+
+    <!-- 4. What did the Minion say? -->
+    <section class="slide" data-slide="4" data-game="listening">
+      <h2 class="slide-title">👂 What Did the Minion Say?</h2>
+      <p class="slide-sub">Click <b>Play</b>, listen, then choose what you heard.</p>
+      <button class="play-btn" id="ls-play">▶ Play</button>
+      <div class="options vertical" id="ls-options"></div>
+      <button class="ghost-btn" data-action="ls-next">Next ➜</button>
+    </section>
+
+    <!-- 5. Phrasal Verbs -->
+    <section class="slide" data-slide="5" data-game="phrasal">
+      <h2 class="slide-title">🧩 Phrasal Verbs</h2>
+      <p class="slide-sub">Choose the right particle.</p>
+      <div class="sentence" id="pv-sentence"></div>
+      <div class="options" id="pv-options"></div>
+      <p class="reveal" id="pv-reveal"></p>
+      <button class="ghost-btn" data-action="pv-next">Next ➜</button>
+    </section>
+
+    <!-- 6. Idiom Picture Puzzle -->
+    <section class="slide" data-slide="6" data-game="idiom">
+      <h2 class="slide-title">🌧️ Idiom Puzzle</h2>
+      <p class="slide-sub">What does the idiom <b>really</b> mean?</p>
+      <div class="idiom-card">
+        <div class="idiom-art" id="id-art">🐱☔🐶</div>
+        <div class="idiom-phrase" id="id-phrase">"It's raining cats and dogs"</div>
+      </div>
+      <div class="options vertical" id="id-options"></div>
+      <button class="ghost-btn" data-action="id-next">Next ➜</button>
+    </section>
+
+    <!-- 7. Tongue Twister -->
+    <section class="slide" data-slide="7" data-game="twister">
+      <h2 class="slide-title">👅 Tongue Twister Challenge</h2>
+      <p class="slide-sub">Listen, then take turns saying it out loud!</p>
+      <div class="twister-card" id="tw-text"></div>
+      <div class="row">
+        <button class="play-btn" id="tw-play">▶ Listen</button>
+        <button class="play-btn slow" id="tw-slow">🐢 Slowly</button>
+      </div>
+      <p class="slide-sub" style="margin-top:1.4rem">Did the team nail it?</p>
+      <div class="row">
+        <button class="vote vote-yes" data-action="tw-yes">👍 Yes! +🍌</button>
+        <button class="vote vote-no" data-action="tw-no">😅 Try again</button>
+      </div>
+      <button class="ghost-btn" data-action="tw-next">Next twister ➜</button>
+    </section>
+
+    <!-- 8. Spot the Mistake -->
+    <section class="slide" data-slide="8" data-game="mistake">
+      <h2 class="slide-title">🔎 Spot the Mistake</h2>
+      <p class="slide-sub">Click the <b>wrong word</b> in the sentence.</p>
+      <div class="sentence clickable" id="sm-sentence"></div>
+      <p class="reveal" id="sm-reveal"></p>
+      <button class="ghost-btn" data-action="sm-next">Next ➜</button>
+    </section>
+
+    <!-- 9. Word Scramble -->
+    <section class="slide" data-slide="9" data-game="scramble">
+      <h2 class="slide-title">🔤 Word Scramble</h2>
+      <p class="slide-sub">Click the letters in the right order. Hint: <span id="ws-hint"></span></p>
+      <div class="scramble-answer" id="ws-answer"></div>
+      <div class="scramble-pool" id="ws-pool"></div>
+      <div class="row">
+        <button class="ghost-btn" data-action="ws-clear">↺ Clear</button>
+        <button class="ghost-btn" data-action="ws-next">Next ➜</button>
+      </div>
+    </section>
+
+    <!-- 10. Synonyms / Antonyms -->
+    <section class="slide" data-slide="10" data-game="synonyms">
+      <h2 class="slide-title">⚖️ Same or Opposite?</h2>
+      <p class="slide-sub">For the word <b id="sy-word">happy</b>, click each option and place it.</p>
+      <div class="bucket-area">
+        <div class="bucket bucket-same" id="sy-same">
+          <h3>= Same</h3><div class="bucket-list"></div>
+        </div>
+        <div class="word-cloud" id="sy-cloud"></div>
+        <div class="bucket bucket-opp" id="sy-opp">
+          <h3>≠ Opposite</h3><div class="bucket-list"></div>
+        </div>
+      </div>
+      <p class="slide-foot">Click a word, then click a bucket.</p>
+    </section>
+
+    <!-- 11. True or False -->
+    <section class="slide" data-slide="11" data-game="trueFalse">
+      <h2 class="slide-title">🤔 True or False?</h2>
+      <p class="slide-sub" id="tf-statement">—</p>
+      <div class="row big">
+        <button class="big-btn tf-true" data-action="tf-true">✅ TRUE</button>
+        <button class="big-btn tf-false" data-action="tf-false">❌ FALSE</button>
+      </div>
+      <p class="reveal" id="tf-reveal"></p>
+      <button class="ghost-btn" data-action="tf-next">Next ➜</button>
+    </section>
+
+    <!-- 12. Crossword -->
+    <section class="slide" data-slide="12" data-game="crossword">
+      <h2 class="slide-title">🍌 Banana Hunt Crossword</h2>
+      <p class="slide-sub">Click a cell, then click a letter. Fill all words to win!</p>
+      <div class="crossword-wrap">
+        <div class="crossword-grid" id="cw-grid"></div>
+        <div class="crossword-side">
+          <h3>Clues</h3>
+          <ul id="cw-clues"></ul>
+          <div class="letter-pool" id="cw-pool"></div>
+          <button class="ghost-btn" data-action="cw-clear">↺ Clear cell</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. Goodbye -->
+    <section class="slide" data-slide="13" data-game="goodbye">
+      <div class="welcome-stage">
+        <img src="assets/minion.svg" class="mascot mascot-bounce" alt="">
+        <img src="assets/minion.svg" class="mascot mascot-wave" alt="">
+        <img src="assets/minion.svg" class="mascot mascot-bounce" alt="">
+      </div>
+      <h1 class="title-xl">Tulaliloo ti amo! 💛</h1>
+      <p class="subtitle">You earned <span id="final-score">0</span> 🍌</p>
+      <p class="hint" id="final-msg">Great work, team!</p>
+      <button class="big-btn" data-action="restart">🔁 Play again</button>
+    </section>
+
+  </main>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <button class="nav-btn" data-action="prev" aria-label="Previous">◀</button>
+    <span class="nav-info"><span id="cur">1</span> / <span id="total">13</span></span>
+    <button class="nav-btn" data-action="next" aria-label="Next">▶</button>
+  </nav>
+
+  <script src="script.js"></script>
+</body>
+</html>
