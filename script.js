@@ -1,103 +1,129 @@
 /* ============================================================
    Bello! English Meeting — slide controller + mini-games
+   Each game shuffles its content on every load, so no two
+   sessions are the same. A "Peek" button (bottom-left) reveals
+   the current answer while held down.
    ============================================================ */
 
-/* ---------- Game data (edit freely) ---------- */
+/* ---------- Game data (edit freely — every list shuffles per load) ---------- */
 const GAMES = {
-  vocabMatch: [
-    { word: "keyboard",  icon: "⌨️" },
-    { word: "coffee",    icon: "☕" },
-    { word: "meeting",   icon: "👥" },
-    { word: "calendar",  icon: "📅" },
-    { word: "deadline",  icon: "⏰" },
+  /* Vocabulary match — pick N pairs at random from this pool */
+  vocabMatchPool: [
+    { word: "keyboard",   icon: "⌨️" },
+    { word: "coffee",     icon: "☕" },
+    { word: "meeting",    icon: "👥" },
+    { word: "calendar",   icon: "📅" },
+    { word: "deadline",   icon: "⏰" },
+    { word: "headphones", icon: "🎧" },
+    { word: "notebook",   icon: "📓" },
+    { word: "umbrella",   icon: "☂️" },
+    { word: "airplane",   icon: "✈️" },
+    { word: "pizza",      icon: "🍕" },
+    { word: "rocket",     icon: "🚀" },
+    { word: "bicycle",    icon: "🚲" },
+    { word: "rainbow",    icon: "🌈" },
+    { word: "telephone",  icon: "📞" },
+    { word: "hospital",   icon: "🏥" },
+    { word: "elephant",   icon: "🐘" },
   ],
+  vocabMatchPerRound: 6,
 
   fillBlank: [
-    { parts: ["She ", " to work every day."], options: ["go", "goes", "going"], answer: 1,
-      tip: "Third person singular → add -s." },
-    { parts: ["I ", " coffee right now."], options: ["drink", "am drinking", "drinks"], answer: 1,
-      tip: "Right now → present continuous." },
-    { parts: ["They ", " here yesterday."], options: ["are", "were", "was"], answer: 1,
-      tip: "Past tense of 'are' is 'were'." },
-    { parts: ["He has ", " his report."], options: ["finish", "finished", "finishing"], answer: 1,
-      tip: "Present perfect: have/has + past participle." },
-    { parts: ["We will ", " you tomorrow."], options: ["called", "calling", "call"], answer: 2,
-      tip: "After 'will' → base form of the verb." },
+    { parts: ["She ", " to work every day."], options: ["go", "goes", "going"], answer: 1, tip: "Third person singular → add -s." },
+    { parts: ["I ", " coffee right now."], options: ["drink", "am drinking", "drinks"], answer: 1, tip: "Right now → present continuous." },
+    { parts: ["They ", " here yesterday."], options: ["are", "were", "was"], answer: 1, tip: "Past tense of 'are' is 'were'." },
+    { parts: ["He has ", " his report."], options: ["finish", "finished", "finishing"], answer: 1, tip: "Present perfect: have/has + past participle." },
+    { parts: ["We will ", " you tomorrow."], options: ["called", "calling", "call"], answer: 2, tip: "After 'will' → base form." },
+    { parts: ["If it rains, we ", " the picnic."], options: ["cancel", "will cancel", "cancelled"], answer: 1, tip: "First conditional: if + present, will + base." },
+    { parts: ["This is ", " book I have ever read."], options: ["the better", "the best", "more good"], answer: 1, tip: "Superlative: the best." },
+    { parts: ["She has been working here ", " 2019."], options: ["for", "since", "from"], answer: 1, tip: "'Since' + a point in time." },
+    { parts: ["He is afraid ", " spiders."], options: ["of", "from", "by"], answer: 0, tip: "afraid OF something." },
+    { parts: ["I'd like ", " information, please."], options: ["a", "some", "an"], answer: 1, tip: "Information is uncountable → 'some'." },
+    { parts: ["My sister is ", " than me."], options: ["taller", "more tall", "the tallest"], answer: 0, tip: "Comparative for short adjectives → -er." },
+    { parts: ["There ", " many people at the party."], options: ["was", "were", "is"], answer: 1, tip: "'people' is plural → 'were'." },
+    { parts: ["He doesn't ", " sushi."], options: ["likes", "liked", "like"], answer: 2, tip: "After 'doesn't' → base form." },
+    { parts: ["I have lived in Rio ", " ten years."], options: ["since", "for", "during"], answer: 1, tip: "'For' + a duration." },
+    { parts: ["You ", " smoke here, it's not allowed."], options: ["mustn't", "don't have to", "shouldn't have"], answer: 0, tip: "Strong prohibition → mustn't." },
+    { parts: ["By next year, she ", " her degree."], options: ["finishes", "will have finished", "is finishing"], answer: 1, tip: "Future perfect: by + future time." },
   ],
 
   listening: [
     { sentence: "I would like a cup of tea, please.",
-      options: [
-        "I would like a cup of tea, please.",
-        "I would like a cap of tea, please.",
-        "I would like a cup of three, please.",
-        "I would lick a cup of tea, please.",
-      ], answer: 0 },
+      options: ["I would like a cup of tea, please.", "I would like a cap of tea, please.", "I would like a cup of three, please.", "I would lick a cup of tea, please."], answer: 0 },
     { sentence: "She lives in a small house near the park.",
-      options: [
-        "She leaves in a small house near the park.",
-        "She lives in a small house near the park.",
-        "She lives in a small horse near the park.",
-        "She lives in a small house near the dark.",
-      ], answer: 1 },
+      options: ["She leaves in a small house near the park.", "She lives in a small house near the park.", "She lives in a small horse near the park.", "She lives in a small house near the dark."], answer: 1 },
     { sentence: "Could you send me the file by Friday?",
-      options: [
-        "Could you send me the file by Friday?",
-        "Could you spend my file by Friday?",
-        "Could you send me the file by Monday?",
-        "Could you send me the phone by Friday?",
-      ], answer: 0 },
+      options: ["Could you send me the file by Friday?", "Could you spend my file by Friday?", "Could you send me the file by Monday?", "Could you send me the phone by Friday?"], answer: 0 },
+    { sentence: "The meeting starts at half past nine.",
+      options: ["The meeting starts at half past five.", "The meeting starts at half past nine.", "The meeting starts at a half pasture.", "The meaning starts at half past nine."], answer: 1 },
+    { sentence: "He bought a new pair of blue jeans.",
+      options: ["He brought a new pair of blue jeans.", "He bought a new pear of blue jeans.", "He bought a new pair of blue jeans.", "He bought a new pair of blue beans."], answer: 2 },
+    { sentence: "Please turn off the lights before you leave.",
+      options: ["Please turn on the lights before you leave.", "Please turn off the lights before you live.", "Please turn off the nights before you leave.", "Please turn off the lights before you leave."], answer: 3 },
+    { sentence: "Can I have the bill, please?",
+      options: ["Can I have the bell, please?", "Can I have the bill, please?", "Can I have the ball, please?", "Can I half the bill, please?"], answer: 1 },
+    { sentence: "I think it's going to rain tonight.",
+      options: ["I sink it's going to rain tonight.", "I think it's going to reign tonight.", "I think it's going to rain tonight.", "I thank it's going to rain tonight."], answer: 2 },
+    { sentence: "She is wearing a beautiful red dress.",
+      options: ["She is wearing a beautiful red dress.", "She is wearing a beautiful red desk.", "She is wearing a beautiful read dress.", "She is wearying a beautiful red dress."], answer: 0 },
+    { sentence: "We need to leave in fifteen minutes.",
+      options: ["We need to live in fifteen minutes.", "We need to leave in fifty minutes.", "We need to leave in fifteen minutes.", "We need to leaf in fifteen minutes."], answer: 2 },
   ],
 
   phrasal: [
-    { parts: ["She finally gave ", " smoking."], options: ["up", "in", "out"], answer: 0,
-      reveal: "give up = stop doing something" },
-    { parts: ["Can you look ", " my dog this weekend?"], options: ["after", "up", "for"], answer: 0,
-      reveal: "look after = take care of" },
-    { parts: ["I need to figure ", " this problem."], options: ["into", "out", "over"], answer: 1,
-      reveal: "figure out = understand / solve" },
-    { parts: ["Please turn ", " the lights when you leave."], options: ["off", "in", "up"], answer: 0,
-      reveal: "turn off = stop a device" },
-    { parts: ["He always shows ", " late."], options: ["off", "up", "down"], answer: 1,
-      reveal: "show up = arrive / appear" },
+    { parts: ["She finally gave ", " smoking."], options: ["up", "in", "out"], answer: 0, reveal: "give up = stop doing something" },
+    { parts: ["Can you look ", " my dog this weekend?"], options: ["after", "up", "for"], answer: 0, reveal: "look after = take care of" },
+    { parts: ["I need to figure ", " this problem."], options: ["into", "out", "over"], answer: 1, reveal: "figure out = understand / solve" },
+    { parts: ["Please turn ", " the lights when you leave."], options: ["off", "in", "up"], answer: 0, reveal: "turn off = stop a device" },
+    { parts: ["He always shows ", " late."], options: ["off", "up", "down"], answer: 1, reveal: "show up = arrive / appear" },
+    { parts: ["Don't put ", " what you can do today."], options: ["off", "in", "up"], answer: 0, reveal: "put off = postpone" },
+    { parts: ["I came ", " an old photo yesterday."], options: ["across", "off", "up"], answer: 0, reveal: "come across = find by chance" },
+    { parts: ["We ran ", " milk this morning."], options: ["into", "out of", "over"], answer: 1, reveal: "run out of = have no more" },
+    { parts: ["He takes ", " his father — same eyes."], options: ["after", "off", "out"], answer: 0, reveal: "take after = resemble (a relative)" },
+    { parts: ["Please fill ", " this form."], options: ["in", "off", "down"], answer: 0, reveal: "fill in = complete a form" },
+    { parts: ["She broke ", " with her boyfriend."], options: ["up", "down", "out"], answer: 0, reveal: "break up = end a relationship" },
+    { parts: ["Hold ", " a moment, please."], options: ["on", "off", "up"], answer: 0, reveal: "hold on = wait" },
+    { parts: ["The car broke ", " on the highway."], options: ["up", "down", "off"], answer: 1, reveal: "break down = stop working (a machine)" },
+    { parts: ["Don't give ", " — try again!"], options: ["up", "in", "off"], answer: 0, reveal: "give up = quit / stop trying" },
   ],
 
   idiom: [
     { art: "🐱☔🐶", phrase: '"It\'s raining cats and dogs"',
-      options: [
-        "It's raining very heavily.",
-        "Pets are getting wet outside.",
-        "Animals are falling from the sky.",
-      ], answer: 0,
+      options: ["It's raining very heavily.", "Pets are getting wet outside.", "Animals are falling from the sky."], answer: 0,
       reveal: "Heavy rain — nothing to do with pets!" },
     { art: "🍰🎂🍰", phrase: '"It\'s a piece of cake"',
-      options: [
-        "Time for dessert!",
-        "It's very easy to do.",
-        "Someone bought a cake.",
-      ], answer: 1,
+      options: ["Time for dessert!", "It's very easy to do.", "Someone bought a cake."], answer: 1,
       reveal: "= very easy" },
     { art: "💡✨", phrase: '"To be on the same page"',
-      options: [
-        "To be reading the same book.",
-        "To agree / share the same understanding.",
-        "To work in the same office.",
-      ], answer: 1,
+      options: ["To be reading the same book.", "To agree / share the same understanding.", "To work in the same office."], answer: 1,
       reveal: "= agree, share an understanding" },
     { art: "🦵🤞", phrase: '"Break a leg!"',
-      options: [
-        "Be careful, it's dangerous!",
-        "Good luck!",
-        "You will get hurt.",
-      ], answer: 1,
+      options: ["Be careful, it's dangerous!", "Good luck!", "You will get hurt."], answer: 1,
       reveal: "= good luck (used before performances)" },
     { art: "🧊🤐", phrase: '"To break the ice"',
-      options: [
-        "To start a conversation in an awkward situation.",
-        "To open a frozen lake.",
-        "To stop being friends.",
-      ], answer: 0,
+      options: ["To start a conversation in an awkward situation.", "To open a frozen lake.", "To stop being friends."], answer: 0,
       reveal: "= start a conversation, ease tension" },
+    { art: "🐂🍶", phrase: '"A bull in a china shop"',
+      options: ["A clumsy person in a delicate situation.", "A farmer who sells dishes.", "An animal at the supermarket."], answer: 0,
+      reveal: "= someone clumsy in a delicate setting" },
+    { art: "⏰💰", phrase: '"Time is money"',
+      options: ["You can buy time.", "Time is as valuable as money — don't waste it.", "Working pays well."], answer: 1,
+      reveal: "= time is as valuable as money" },
+    { art: "🌽🥒", phrase: '"To spill the beans"',
+      options: ["To drop your food.", "To reveal a secret.", "To cook dinner."], answer: 1,
+      reveal: "= reveal a secret (often by accident)" },
+    { art: "🐦1️⃣🪨2️⃣", phrase: '"Kill two birds with one stone"',
+      options: ["Achieve two things with one action.", "Hunt for food.", "Solve only one problem."], answer: 0,
+      reveal: "= solve two problems at once" },
+    { art: "💸🦅", phrase: '"Cost an arm and a leg"',
+      options: ["To injure yourself.", "To be very expensive.", "To donate to charity."], answer: 1,
+      reveal: "= very expensive" },
+    { art: "🌙🟦", phrase: '"Once in a blue moon"',
+      options: ["Every month.", "Very rarely.", "At night only."], answer: 1,
+      reveal: "= very rarely" },
+    { art: "🤐🤫", phrase: '"Bite your tongue"',
+      options: ["Hurt your mouth.", "Stop yourself from saying something.", "Speak louder."], answer: 1,
+      reveal: "= stop yourself from saying something you regret" },
   ],
 
   twister: [
@@ -105,86 +131,141 @@ const GAMES = {
     "Peter Piper picked a peck of pickled peppers.",
     "How much wood would a woodchuck chuck if a woodchuck could chuck wood?",
     "Red lorry, yellow lorry, red lorry, yellow lorry.",
+    "Fuzzy Wuzzy was a bear; Fuzzy Wuzzy had no hair.",
+    "Six slick slim sycamore saplings.",
+    "I scream, you scream, we all scream for ice cream.",
+    "Toy boat, toy boat, toy boat.",
+    "Unique New York, unique New York.",
+    "A proper copper coffee pot.",
   ],
 
   mistake: [
-    { words: ["She", "don't", "like", "coffee."], wrongIndex: 1,
+    { words: ["She", "don't", "like", "coffee."], wrongIndex: 1, fix: "doesn't",
       reveal: "Use 'doesn't' for he/she/it." },
-    { words: ["I", "have", "saw", "that", "movie."], wrongIndex: 2,
+    { words: ["I", "have", "saw", "that", "movie."], wrongIndex: 2, fix: "seen",
       reveal: "Past participle of 'see' is 'seen' (have seen)." },
-    { words: ["He", "is", "more", "taller", "than", "me."], wrongIndex: 3,
+    { words: ["He", "is", "more", "taller", "than", "me."], wrongIndex: 3, fix: "(remove 'more')",
       reveal: "Either 'taller' OR 'more tall' — never both." },
-    { words: ["They", "is", "happy", "today."], wrongIndex: 1,
+    { words: ["They", "is", "happy", "today."], wrongIndex: 1, fix: "are",
       reveal: "'They' takes 'are', not 'is'." },
-    { words: ["I", "go", "to", "the", "park", "yesterday."], wrongIndex: 1,
+    { words: ["I", "go", "to", "the", "park", "yesterday."], wrongIndex: 1, fix: "went",
       reveal: "Past tense → 'went', not 'go'." },
+    { words: ["My", "brother", "have", "two", "cars."], wrongIndex: 2, fix: "has",
+      reveal: "Third person singular → 'has'." },
+    { words: ["She", "can", "speaks", "three", "languages."], wrongIndex: 2, fix: "speak",
+      reveal: "After 'can' → base form." },
+    { words: ["I", "am", "agree", "with", "you."], wrongIndex: 1, fix: "(remove 'am')",
+      reveal: "'Agree' is a verb — say 'I agree', not 'I am agree'." },
+    { words: ["He", "didn't", "went", "to", "school."], wrongIndex: 2, fix: "go",
+      reveal: "After 'didn't' → base form." },
+    { words: ["This", "informations", "is", "useful."], wrongIndex: 1, fix: "information",
+      reveal: "'Information' is uncountable — no plural." },
+    { words: ["Where", "you", "are", "going?"], wrongIndex: 2, fix: "are you",
+      reveal: "Question word order: Where ARE YOU going?" },
+    { words: ["I", "have", "23", "years."], wrongIndex: 1, fix: "am",
+      reveal: "Age uses BE: 'I am 23 (years old)'." },
+    { words: ["She", "likes", "to", "swimming."], wrongIndex: 3, fix: "swim",
+      reveal: "After 'to' → base form: to swim." },
   ],
 
   scramble: [
-    { word: "BANANA",   hint: "Minion's favorite snack 🍌" },
-    { word: "OFFICE",   hint: "Where you work 💼" },
-    { word: "FRIDAY",   hint: "The best day of the week 🎉" },
-    { word: "ENGLISH",  hint: "What we are learning today 🇬🇧" },
-    { word: "COFFEE",   hint: "Hot drink with caffeine ☕" },
+    { word: "BANANA",     hint: "Minion's favorite snack 🍌" },
+    { word: "OFFICE",     hint: "Where you work 💼" },
+    { word: "FRIDAY",     hint: "Best day of the week 🎉" },
+    { word: "ENGLISH",    hint: "What we are learning today 🇬🇧" },
+    { word: "COFFEE",     hint: "Hot drink with caffeine ☕" },
+    { word: "COMPUTER",   hint: "You use it every day 💻" },
+    { word: "SUMMER",     hint: "The hottest season ☀️" },
+    { word: "PROJECT",    hint: "A piece of work with a goal 🎯" },
+    { word: "AIRPORT",    hint: "Where planes take off ✈️" },
+    { word: "RAINBOW",    hint: "Seven colors after the rain 🌈" },
+    { word: "BREAKFAST",  hint: "First meal of the day 🥞" },
+    { word: "PINEAPPLE",  hint: "Yellow tropical fruit 🍍" },
+    { word: "DINOSAUR",   hint: "Extinct reptile 🦖" },
+    { word: "BIRTHDAY",   hint: "Day to celebrate you 🎂" },
   ],
 
+  /* Synonyms — pick one entry per load */
   synonyms: [
-    { word: "happy",
-      same: ["joyful", "glad", "cheerful"],
-      opposite: ["sad", "miserable", "upset"] },
+    { word: "happy",  same: ["joyful", "glad", "cheerful"],   opposite: ["sad", "miserable", "upset"] },
+    { word: "big",    same: ["large", "huge", "enormous"],    opposite: ["small", "tiny", "little"] },
+    { word: "fast",   same: ["quick", "rapid", "swift"],      opposite: ["slow", "sluggish", "delayed"] },
+    { word: "smart",  same: ["clever", "bright", "wise"],     opposite: ["foolish", "silly", "dumb"] },
+    { word: "begin",  same: ["start", "commence", "launch"],  opposite: ["end", "finish", "stop"] },
+    { word: "easy",   same: ["simple", "effortless", "basic"], opposite: ["hard", "tough", "complex"] },
+    { word: "rich",   same: ["wealthy", "affluent"],          opposite: ["poor", "broke"] },
   ],
 
   trueFalse: [
-    { statement: "The plural of 'child' is 'childs'.", answer: false,
-      reveal: "It's 'children' — irregular plural." },
-    { statement: "'Their', 'there' and 'they're' all sound the same.", answer: true,
-      reveal: "They're called homophones." },
-    { statement: "We say 'I have 25 years old'.", answer: false,
-      reveal: "Correct: 'I AM 25 years old'." },
-    { statement: "'Beautiful' and 'pretty' are synonyms.", answer: true,
-      reveal: "Both describe something attractive." },
-    { statement: "The past tense of 'go' is 'goed'.", answer: false,
-      reveal: "It's 'went' — irregular verb." },
+    { statement: "The plural of 'child' is 'childs'.", answer: false, reveal: "It's 'children' — irregular plural." },
+    { statement: "'Their', 'there' and 'they're' all sound the same.", answer: true, reveal: "They're called homophones." },
+    { statement: "We say 'I have 25 years old'.", answer: false, reveal: "Correct: 'I AM 25 years old'." },
+    { statement: "'Beautiful' and 'pretty' are synonyms.", answer: true, reveal: "Both describe something attractive." },
+    { statement: "The past tense of 'go' is 'goed'.", answer: false, reveal: "It's 'went' — irregular verb." },
+    { statement: "An adjective describes a noun.", answer: true, reveal: "Yes — e.g. 'a BIG house'." },
+    { statement: "The opposite of 'always' is 'sometimes'.", answer: false, reveal: "Opposite of 'always' is 'never'." },
+    { statement: "We use 'a' before words starting with a vowel sound.", answer: false, reveal: "Use 'an' before vowel sounds: an apple, an hour." },
+    { statement: "'Bigger' is the comparative form of 'big'.", answer: true, reveal: "Short adjective + -er." },
+    { statement: "'I' is always written in lowercase.", answer: false, reveal: "The pronoun 'I' is ALWAYS capitalised." },
+    { statement: "'Information' has no plural form.", answer: true, reveal: "It's uncountable — no 'informations'." },
+    { statement: "'Used to' talks about past habits.", answer: true, reveal: "e.g. 'I used to play football'." },
+    { statement: "The article 'the' is used for unspecific things.", answer: false, reveal: "'The' is for SPECIFIC things; 'a/an' is unspecific." },
+    { statement: "'Ate' is the past simple of 'eat'.", answer: true, reveal: "eat → ate → eaten." },
   ],
 
-  // Mini crossword: grid of 7x5; '#' = blocked. Words placed manually.
-  crossword: {
-    rows: 5,
-    cols: 7,
-    /* Layout:
-       . B A N A N A
-       . O . . . . .
-       O F F I C E .
-       . . . . . . .
-       . . F R I D A Y  -> too long, use 6 cols starting col 1
-       Re-design: 5 rows x 7 cols
-       Row 0: . B A N A N A    (across "BANANA" start col 1)
-       Row 1: . O . . . . .
-       Row 2: . O . . . . .  (BOOK going down? let's use BOOK)
-       Row 3: . K . . . . .
-       Row 4: . . . . . . .
-
-       Simpler: two crossing words.
-       Across1 row 0 col 1..6: BANANA
-       Down1 col 1 row 0..3: BOOK
-       Across2 row 4 col 0..5: FRIDAY (no overlap, separate)
-       Down2 col 4 row 0..3: ANTS  (overlapping with BANANA's 'A' at col 4? row 0 col 4 = 'A' (BANANA[3]='A')) -> ANTS down: A(row0)N(row1)T(row2)S(row3) — works!
-    */
-    grid: [
-      ["#","B","A","N","A","N","A"],
-      ["#","O","#","#","N","#","#"],
-      ["#","O","#","#","T","#","#"],
-      ["#","K","#","#","S","#","#"],
-      ["F","R","I","D","A","Y","#"],
-    ],
-    starts: [
-      { num: 1, dir: "across", row: 0, col: 1, len: 6, clue: "Yellow fruit Minions love 🍌" },
-      { num: 1, dir: "down",   row: 0, col: 1, len: 4, clue: "You read it 📖" },
-      { num: 2, dir: "down",   row: 0, col: 4, len: 4, clue: "Tiny insects 🐜" },
-      { num: 3, dir: "across", row: 4, col: 0, len: 6, clue: "Best day of the work week 🎉" },
-    ],
-    pool: "ABCDEFGHIJKLMNOPRSTUVWY".split(""),
-  },
+  /* Multiple crossword puzzles — one is picked at random per load */
+  crosswords: [
+    {
+      title: "Minion Day",
+      rows: 5, cols: 7,
+      grid: [
+        ["#","B","A","N","A","N","A"],
+        ["#","O","#","#","N","#","#"],
+        ["#","O","#","#","T","#","#"],
+        ["#","K","#","#","S","#","#"],
+        ["F","R","I","D","A","Y","#"],
+      ],
+      starts: [
+        { num: 1, dir: "across", row: 0, col: 1, len: 6, clue: "Yellow fruit Minions love 🍌" },
+        { num: 1, dir: "down",   row: 0, col: 1, len: 4, clue: "You read it 📖" },
+        { num: 2, dir: "down",   row: 0, col: 4, len: 4, clue: "Tiny insects 🐜" },
+        { num: 3, dir: "across", row: 4, col: 0, len: 6, clue: "Best day of the work week 🎉" },
+      ],
+    },
+    {
+      title: "At the Office",
+      rows: 5, cols: 7,
+      grid: [
+        ["#","C","O","F","F","E","E"],
+        ["#","H","#","#","#","#","#"],
+        ["#","A","G","E","N","D","A"],
+        ["#","I","#","#","#","#","#"],
+        ["#","R","#","#","#","#","#"],
+      ],
+      starts: [
+        { num: 1, dir: "across", row: 0, col: 1, len: 6, clue: "Hot drink with caffeine ☕" },
+        { num: 1, dir: "down",   row: 0, col: 1, len: 5, clue: "You sit on it 🪑" },
+        { num: 2, dir: "across", row: 2, col: 1, len: 6, clue: "List of meeting topics 📋" },
+      ],
+    },
+    {
+      title: "Weekend Vibes",
+      rows: 5, cols: 7,
+      grid: [
+        ["#","P","I","Z","Z","A","#"],
+        ["#","A","#","#","#","#","#"],
+        ["B","R","E","A","D","#","#"],
+        ["#","T","#","#","#","#","#"],
+        ["#","Y","#","#","#","#","#"],
+      ],
+      starts: [
+        { num: 1, dir: "across", row: 0, col: 1, len: 5, clue: "Italian round food with cheese 🍕" },
+        { num: 1, dir: "down",   row: 0, col: 1, len: 5, clue: "A celebration with friends 🎉" },
+        { num: 2, dir: "across", row: 2, col: 0, len: 5, clue: "Made from flour, used for sandwiches 🍞" },
+      ],
+    },
+  ],
+  crosswordPool: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
 };
 
 /* ---------- Score & state ---------- */
@@ -240,14 +321,12 @@ function speak(text, opts = {}) {
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  u.rate = opts.slow ? 0.65 : 0.95;
+  u.rate = opts.slow ? 0.6 : 0.95;
   u.pitch = 1;
-  // Try to pick an English voice
   const v = speechSynthesis.getVoices().find(v => v.lang.startsWith("en"));
   if (v) u.voice = v;
   speechSynthesis.speak(u);
 }
-// Voices load async in some browsers
 if ("speechSynthesis" in window) {
   speechSynthesis.onvoiceschanged = () => {};
 }
@@ -265,14 +344,15 @@ function showSlide(i) {
   current = i;
   slides[current].classList.add("active");
   curEl.textContent = current + 1;
+  hidePeek();
   const game = slides[current].dataset.game;
   if (initializers[game]) initializers[game]();
   if (game === "goodbye") {
     finalScoreEl.textContent = score;
     const msg = document.getElementById("final-msg");
-    if (score >= 12)      msg.textContent = "🏆 Banana legend! Outstanding job!";
-    else if (score >= 8)  msg.textContent = "💛 Great work — top minion energy!";
-    else if (score >= 4)  msg.textContent = "👍 Nice effort — keep practicing!";
+    if (score >= 18)      msg.textContent = "🏆 Banana legend! Outstanding job!";
+    else if (score >= 12) msg.textContent = "💛 Great work — top minion energy!";
+    else if (score >= 6)  msg.textContent = "👍 Nice effort — keep practicing!";
     else                  msg.textContent = "🌱 Good start — let's go again!";
   }
 }
@@ -280,6 +360,8 @@ function next() { if (current < slides.length - 1) showSlide(current + 1); }
 function prev() { if (current > 0) showSlide(current - 1); }
 
 document.addEventListener("keydown", (e) => {
+  // ignore arrow keys while typing in inputs
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
   if (e.key === "ArrowRight" || e.key === "PageDown") next();
   else if (e.key === "ArrowLeft" || e.key === "PageUp") prev();
 });
@@ -304,23 +386,27 @@ document.addEventListener("click", (e) => {
    ============================================================ */
 const initializers = {};
 const actions = {};
+const peekProviders = {}; // game name → () => string|null
 
 /* ---------- 2. Vocabulary Match ---------- */
 let vmSelectedWord = null;
 let vmRemaining = 0;
+let vmRoundPairs = [];
 initializers.vocabMatch = function () {
   const wordsEl = document.getElementById("vm-words");
   const iconsEl = document.getElementById("vm-icons");
   wordsEl.innerHTML = "";
   iconsEl.innerHTML = "";
   vmSelectedWord = null;
-  vmRemaining = GAMES.vocabMatch.length;
+
+  // Pick a fresh subset every load
+  const pool = shuffle([...GAMES.vocabMatchPool]);
+  vmRoundPairs = pool.slice(0, GAMES.vocabMatchPerRound);
+  vmRemaining = vmRoundPairs.length;
   document.querySelector("#vm-status span").textContent = vmRemaining;
 
-  const words = [...GAMES.vocabMatch];
-  const icons = [...GAMES.vocabMatch];
-  shuffle(words);
-  shuffle(icons);
+  const words = shuffle([...vmRoundPairs]);
+  const icons = shuffle([...vmRoundPairs]);
 
   words.forEach((w) => {
     const c = makeChip(w.word, "word");
@@ -338,7 +424,11 @@ initializers.vocabMatch = function () {
     c.dataset.match = w.word;
     c.addEventListener("click", () => {
       if (c.classList.contains("matched")) return;
-      if (!vmSelectedWord) { c.classList.add("miss"); setTimeout(() => c.classList.remove("miss"), 400); return; }
+      if (!vmSelectedWord) {
+        c.classList.add("miss");
+        setTimeout(() => c.classList.remove("miss"), 400);
+        return;
+      }
       if (c.dataset.match === vmSelectedWord.dataset.match) {
         c.classList.add("matched");
         vmSelectedWord.classList.add("matched");
@@ -358,6 +448,11 @@ initializers.vocabMatch = function () {
     iconsEl.appendChild(c);
   });
 };
+peekProviders.vocabMatch = () =>
+  vmRoundPairs.length
+    ? "Pairs:\n" + vmRoundPairs.map(p => `• ${p.word} → ${p.icon}`).join("\n")
+    : null;
+
 function makeChip(text, extraClass = "") {
   const c = document.createElement("button");
   c.className = "chip " + extraClass;
@@ -367,34 +462,37 @@ function makeChip(text, extraClass = "") {
 }
 
 /* ---------- 3. Fill the Blank ---------- */
+let fbList = [];
 let fbIndex = 0;
 let fbAnswered = false;
 initializers.fillBlank = function () {
+  fbList = shuffle([...GAMES.fillBlank]);
   fbIndex = 0;
   renderFb();
 };
 actions["fb-next"] = function () {
-  fbIndex = (fbIndex + 1) % GAMES.fillBlank.length;
+  fbIndex = (fbIndex + 1) % fbList.length;
   renderFb();
 };
 function renderFb() {
-  const q = GAMES.fillBlank[fbIndex];
+  const q = fbList[fbIndex];
   const sent = document.getElementById("fb-sentence");
   sent.innerHTML = `${escapeHtml(q.parts[0])}<span class="blank" id="fb-blank">___</span>${escapeHtml(q.parts[1])}`;
   const opts = document.getElementById("fb-options");
   opts.innerHTML = "";
   fbAnswered = false;
-  q.options.forEach((opt, i) => {
+  const order = shuffle([0, 1, 2]);
+  order.forEach((origIdx) => {
     const b = document.createElement("button");
     b.className = "opt";
-    b.textContent = opt;
+    b.textContent = q.options[origIdx];
     b.addEventListener("click", () => {
       if (fbAnswered) return;
       const blank = document.getElementById("fb-blank");
-      if (i === q.answer) {
+      if (origIdx === q.answer) {
         fbAnswered = true;
         b.classList.add("correct");
-        blank.textContent = opt;
+        blank.textContent = q.options[origIdx];
         blank.classList.add("filled");
         addScore(1);
       } else {
@@ -407,44 +505,56 @@ function renderFb() {
     opts.appendChild(b);
   });
 }
+peekProviders.fillBlank = () => {
+  if (!fbList.length) return null;
+  const q = fbList[fbIndex];
+  return `${q.parts[0]}[ ${q.options[q.answer]} ]${q.parts[1]}\n💡 ${q.tip}`;
+};
 
 /* ---------- 4. Listening ---------- */
+let lsList = [];
 let lsIndex = 0;
 let lsAnswered = false;
 initializers.listening = function () {
+  lsList = shuffle([...GAMES.listening]);
   lsIndex = 0;
   renderLs();
-  document.getElementById("ls-play").onclick = () => speak(GAMES.listening[lsIndex].sentence);
+  document.getElementById("ls-play").onclick = () => speak(lsList[lsIndex].sentence);
 };
 actions["ls-next"] = function () {
-  lsIndex = (lsIndex + 1) % GAMES.listening.length;
+  lsIndex = (lsIndex + 1) % lsList.length;
   renderLs();
+  document.getElementById("ls-play").onclick = () => speak(lsList[lsIndex].sentence);
 };
 function renderLs() {
   lsAnswered = false;
-  const q = GAMES.listening[lsIndex];
+  const q = lsList[lsIndex];
   const opts = document.getElementById("ls-options");
   opts.innerHTML = "";
-  q.options.forEach((opt, i) => {
+  const indices = shuffle([0, 1, 2, 3]);
+  indices.forEach((origIdx) => {
     const b = document.createElement("button");
     b.className = "opt";
-    b.textContent = opt;
+    b.textContent = q.options[origIdx];
     b.addEventListener("click", () => {
       if (lsAnswered) return;
-      if (i === q.answer) { lsAnswered = true; b.classList.add("correct"); addScore(1); }
+      if (origIdx === q.answer) { lsAnswered = true; b.classList.add("correct"); addScore(1); }
       else { b.classList.add("wrong"); }
     });
     opts.appendChild(b);
   });
 }
+peekProviders.listening = () =>
+  lsList.length ? "🔊 " + lsList[lsIndex].sentence : null;
 
 /* ---------- 5. Phrasal verbs ---------- */
+let pvList = [];
 let pvIndex = 0;
 let pvAnswered = false;
-initializers.phrasal = function () { pvIndex = 0; renderPv(); };
-actions["pv-next"] = function () { pvIndex = (pvIndex + 1) % GAMES.phrasal.length; renderPv(); };
+initializers.phrasal = function () { pvList = shuffle([...GAMES.phrasal]); pvIndex = 0; renderPv(); };
+actions["pv-next"] = function () { pvIndex = (pvIndex + 1) % pvList.length; renderPv(); };
 function renderPv() {
-  const q = GAMES.phrasal[pvIndex];
+  const q = pvList[pvIndex];
   const sent = document.getElementById("pv-sentence");
   sent.innerHTML = `${escapeHtml(q.parts[0])}<span class="blank" id="pv-blank">___</span>${escapeHtml(q.parts[1])}`;
   const opts = document.getElementById("pv-options");
@@ -452,17 +562,18 @@ function renderPv() {
   document.getElementById("pv-reveal").textContent = "";
   document.getElementById("pv-reveal").classList.remove("show");
   pvAnswered = false;
-  q.options.forEach((opt, i) => {
+  const order = shuffle([0, 1, 2]);
+  order.forEach((origIdx) => {
     const b = document.createElement("button");
     b.className = "opt";
-    b.textContent = opt;
+    b.textContent = q.options[origIdx];
     b.addEventListener("click", () => {
       if (pvAnswered) return;
       const blank = document.getElementById("pv-blank");
-      if (i === q.answer) {
+      if (origIdx === q.answer) {
         pvAnswered = true;
         b.classList.add("correct");
-        blank.textContent = opt;
+        blank.textContent = q.options[origIdx];
         blank.classList.add("filled");
         const r = document.getElementById("pv-reveal");
         r.textContent = "💡 " + q.reveal;
@@ -475,41 +586,55 @@ function renderPv() {
     opts.appendChild(b);
   });
 }
+peekProviders.phrasal = () => {
+  if (!pvList.length) return null;
+  const q = pvList[pvIndex];
+  return `${q.parts[0]}[ ${q.options[q.answer]} ]${q.parts[1]}\n💡 ${q.reveal}`;
+};
 
 /* ---------- 6. Idiom ---------- */
+let idList = [];
 let idIndex = 0;
 let idAnswered = false;
-initializers.idiom = function () { idIndex = 0; renderId(); };
-actions["id-next"] = function () { idIndex = (idIndex + 1) % GAMES.idiom.length; renderId(); };
+initializers.idiom = function () { idList = shuffle([...GAMES.idiom]); idIndex = 0; renderId(); };
+actions["id-next"] = function () { idIndex = (idIndex + 1) % idList.length; renderId(); };
 function renderId() {
-  const q = GAMES.idiom[idIndex];
+  const q = idList[idIndex];
   document.getElementById("id-art").textContent = q.art;
   document.getElementById("id-phrase").textContent = q.phrase;
   const opts = document.getElementById("id-options");
   opts.innerHTML = "";
   idAnswered = false;
-  q.options.forEach((opt, i) => {
+  const order = shuffle([0, 1, 2]);
+  order.forEach((origIdx) => {
     const b = document.createElement("button");
     b.className = "opt";
-    b.textContent = opt;
+    b.textContent = q.options[origIdx];
     b.addEventListener("click", () => {
       if (idAnswered) return;
-      if (i === q.answer) { idAnswered = true; b.classList.add("correct"); addScore(1); }
+      if (origIdx === q.answer) { idAnswered = true; b.classList.add("correct"); addScore(1); }
       else { b.classList.add("wrong"); }
     });
     opts.appendChild(b);
   });
 }
+peekProviders.idiom = () => {
+  if (!idList.length) return null;
+  const q = idList[idIndex];
+  return `${q.options[q.answer]}\n💡 ${q.reveal}`;
+};
 
 /* ---------- 7. Twister ---------- */
+let twList = [];
 let twIndex = 0;
 let twScored = false;
 initializers.twister = function () {
+  twList = shuffle([...GAMES.twister]);
   twIndex = 0;
   twScored = false;
-  document.getElementById("tw-text").textContent = GAMES.twister[0];
-  document.getElementById("tw-play").onclick = () => speak(GAMES.twister[twIndex]);
-  document.getElementById("tw-slow").onclick = () => speak(GAMES.twister[twIndex], { slow: true });
+  document.getElementById("tw-text").textContent = twList[0];
+  document.getElementById("tw-play").onclick = () => speak(twList[twIndex]);
+  document.getElementById("tw-slow").onclick = () => speak(twList[twIndex], { slow: true });
 };
 actions["tw-yes"] = function () {
   if (twScored) return;
@@ -518,18 +643,20 @@ actions["tw-yes"] = function () {
 };
 actions["tw-no"] = function () { /* no points */ };
 actions["tw-next"] = function () {
-  twIndex = (twIndex + 1) % GAMES.twister.length;
+  twIndex = (twIndex + 1) % twList.length;
   twScored = false;
-  document.getElementById("tw-text").textContent = GAMES.twister[twIndex];
+  document.getElementById("tw-text").textContent = twList[twIndex];
 };
+peekProviders.twister = () => twList.length ? twList[twIndex] : null;
 
 /* ---------- 8. Spot the mistake ---------- */
+let smList = [];
 let smIndex = 0;
 let smAnswered = false;
-initializers.mistake = function () { smIndex = 0; renderSm(); };
-actions["sm-next"] = function () { smIndex = (smIndex + 1) % GAMES.mistake.length; renderSm(); };
+initializers.mistake = function () { smList = shuffle([...GAMES.mistake]); smIndex = 0; renderSm(); };
+actions["sm-next"] = function () { smIndex = (smIndex + 1) % smList.length; renderSm(); };
 function renderSm() {
-  const q = GAMES.mistake[smIndex];
+  const q = smList[smIndex];
   const sent = document.getElementById("sm-sentence");
   sent.innerHTML = "";
   const reveal = document.getElementById("sm-reveal");
@@ -556,12 +683,18 @@ function renderSm() {
     sent.appendChild(span);
   });
 }
+peekProviders.mistake = () => {
+  if (!smList.length) return null;
+  const q = smList[smIndex];
+  return `Wrong word: "${q.words[q.wrongIndex]}" → ${q.fix}\n💡 ${q.reveal}`;
+};
 
 /* ---------- 9. Word scramble ---------- */
+let wsList = [];
 let wsIndex = 0;
 let wsAnswer = [];
-initializers.scramble = function () { wsIndex = 0; renderWs(); };
-actions["ws-next"] = function () { wsIndex = (wsIndex + 1) % GAMES.scramble.length; renderWs(); };
+initializers.scramble = function () { wsList = shuffle([...GAMES.scramble]); wsIndex = 0; renderWs(); };
+actions["ws-next"] = function () { wsIndex = (wsIndex + 1) % wsList.length; renderWs(); };
 actions["ws-clear"] = function () {
   const slots = document.querySelectorAll("#ws-answer .slot");
   slots.forEach(s => { s.textContent = ""; s.classList.remove("filled", "correct"); });
@@ -569,7 +702,7 @@ actions["ws-clear"] = function () {
   wsAnswer = [];
 };
 function renderWs() {
-  const q = GAMES.scramble[wsIndex];
+  const q = wsList[wsIndex];
   document.getElementById("ws-hint").textContent = q.hint;
   const ans = document.getElementById("ws-answer");
   const pool = document.getElementById("ws-pool");
@@ -584,9 +717,8 @@ function renderWs() {
   }
   const letters = q.word.split("");
   shuffle(letters);
-  // ensure not already in order
   if (letters.join("") === q.word) letters.reverse();
-  letters.forEach((ch, i) => {
+  letters.forEach((ch) => {
     const t = document.createElement("button");
     t.className = "letter-tile";
     t.textContent = ch;
@@ -599,7 +731,6 @@ function renderWs() {
       next.classList.add("filled");
       t.classList.add("used");
       wsAnswer.push({ ch, tile: t, slot: next });
-      // check on completion
       if (wsAnswer.length === q.word.length) {
         const formed = wsAnswer.map(x => x.ch).join("");
         if (formed === q.word) {
@@ -614,20 +745,22 @@ function renderWs() {
     pool.appendChild(t);
   });
 }
+peekProviders.scramble = () => wsList.length ? wsList[wsIndex].word : null;
 
 /* ---------- 10. Synonyms / Antonyms ---------- */
+let syCurrent = null;
 let syState = null;
 initializers.synonyms = function () {
-  const data = GAMES.synonyms[0];
+  syCurrent = GAMES.synonyms[Math.floor(Math.random() * GAMES.synonyms.length)];
   syState = { selected: null };
-  document.getElementById("sy-word").textContent = data.word;
+  document.getElementById("sy-word").textContent = syCurrent.word;
   const cloud = document.getElementById("sy-cloud");
   cloud.innerHTML = "";
   document.querySelector("#sy-same .bucket-list").innerHTML = "";
   document.querySelector("#sy-opp  .bucket-list").innerHTML = "";
 
-  const all = [...data.same.map(w => ({ w, kind: "same" })),
-               ...data.opposite.map(w => ({ w, kind: "opp" }))];
+  const all = [...syCurrent.same.map(w => ({ w, kind: "same" })),
+               ...syCurrent.opposite.map(w => ({ w, kind: "opp" }))];
   shuffle(all);
   all.forEach(({ w, kind }) => {
     const el = document.createElement("button");
@@ -667,24 +800,29 @@ initializers.synonyms = function () {
     };
   });
 };
+peekProviders.synonyms = () => {
+  if (!syCurrent) return null;
+  return `Word: ${syCurrent.word}\n= Same: ${syCurrent.same.join(", ")}\n≠ Opposite: ${syCurrent.opposite.join(", ")}`;
+};
 
 /* ---------- 11. True / False ---------- */
+let tfList = [];
 let tfIndex = 0;
 let tfAnswered = false;
-initializers.trueFalse = function () { tfIndex = 0; renderTf(); };
-actions["tf-next"] = function () { tfIndex = (tfIndex + 1) % GAMES.trueFalse.length; renderTf(); };
+initializers.trueFalse = function () { tfList = shuffle([...GAMES.trueFalse]); tfIndex = 0; renderTf(); };
+actions["tf-next"] = function () { tfIndex = (tfIndex + 1) % tfList.length; renderTf(); };
 actions["tf-true"]  = function () { answerTf(true); };
 actions["tf-false"] = function () { answerTf(false); };
 function renderTf() {
   tfAnswered = false;
-  document.getElementById("tf-statement").textContent = GAMES.trueFalse[tfIndex].statement;
+  document.getElementById("tf-statement").textContent = tfList[tfIndex].statement;
   const r = document.getElementById("tf-reveal");
   r.textContent = "";
   r.classList.remove("show");
 }
 function answerTf(val) {
   if (tfAnswered) return;
-  const q = GAMES.trueFalse[tfIndex];
+  const q = tfList[tfIndex];
   const r = document.getElementById("tf-reveal");
   if (val === q.answer) {
     tfAnswered = true;
@@ -695,28 +833,36 @@ function answerTf(val) {
     r.textContent = "❌ Not quite — " + q.reveal;
     r.classList.add("show");
     flashBad(document.getElementById("tf-statement"));
-    tfAnswered = true; // reveal anyway
+    tfAnswered = true;
   }
 }
+peekProviders.trueFalse = () => {
+  if (!tfList.length) return null;
+  const q = tfList[tfIndex];
+  return `Answer: ${q.answer ? "TRUE ✅" : "FALSE ❌"}\n💡 ${q.reveal}`;
+};
 
-/* ---------- 12. Crossword ---------- */
-let cwActive = null; // {row, col}
-let cwCells = []; // 2d array
+/* ---------- 12. Crossword (multi-puzzle) ---------- */
+let cwActive = null;
+let cwCells = [];
+let cwPuzzle = null;
 initializers.crossword = function () {
-  const data = GAMES.crossword;
+  cwPuzzle = GAMES.crosswords[Math.floor(Math.random() * GAMES.crosswords.length)];
+  const titleEl = document.getElementById("cw-title");
+  if (titleEl) titleEl.textContent = cwPuzzle.title || "";
   const gridEl = document.getElementById("cw-grid");
   gridEl.innerHTML = "";
-  gridEl.style.gridTemplateColumns = `repeat(${data.cols}, 56px)`;
+  gridEl.style.gridTemplateColumns = `repeat(${cwPuzzle.cols}, 56px)`;
   cwCells = [];
+  cwActive = null;
 
-  // determine numbering
-  const numMap = {}; // row,col -> num
-  data.starts.forEach(s => { numMap[`${s.row},${s.col}`] = s.num; });
+  const numMap = {};
+  cwPuzzle.starts.forEach(s => { numMap[`${s.row},${s.col}`] = s.num; });
 
-  for (let r = 0; r < data.rows; r++) {
+  for (let r = 0; r < cwPuzzle.rows; r++) {
     cwCells[r] = [];
-    for (let c = 0; c < data.cols; c++) {
-      const ch = data.grid[r][c];
+    for (let c = 0; c < cwPuzzle.cols; c++) {
+      const ch = cwPuzzle.grid[r][c];
       const cell = document.createElement("div");
       cell.className = "cw-cell";
       if (ch !== "#") {
@@ -742,20 +888,18 @@ initializers.crossword = function () {
     }
   }
 
-  // clues
   const cluesEl = document.getElementById("cw-clues");
   cluesEl.innerHTML = "";
-  data.starts.forEach((s, i) => {
+  cwPuzzle.starts.forEach((s, i) => {
     const li = document.createElement("li");
     li.id = `cw-clue-${i}`;
     li.textContent = `${s.num} ${s.dir.toUpperCase()}: ${s.clue}`;
     cluesEl.appendChild(li);
   });
 
-  // letter pool
   const poolEl = document.getElementById("cw-pool");
   poolEl.innerHTML = "";
-  data.pool.forEach(letter => {
+  GAMES.crosswordPool.forEach(letter => {
     const b = document.createElement("button");
     b.className = "lp";
     b.textContent = letter;
@@ -768,15 +912,12 @@ initializers.crossword = function () {
 };
 actions["cw-clear"] = function () {
   if (!cwActive) return;
-  // keep number span
   const num = cwActive.querySelector(".num");
   cwActive.textContent = "";
   if (num) cwActive.appendChild(num);
   cwActive.classList.remove("correct");
 };
-
 function placeCwLetter(cell, letter) {
-  // store letter as a text node, keep .num span
   const num = cell.querySelector(".num");
   cell.textContent = letter;
   if (num) cell.appendChild(num);
@@ -790,8 +931,8 @@ function placeCwLetter(cell, letter) {
   checkCrosswordWords();
 }
 function checkCrosswordWords() {
-  const data = GAMES.crossword;
-  data.starts.forEach((s, i) => {
+  if (!cwPuzzle) return;
+  cwPuzzle.starts.forEach((s, i) => {
     let ok = true;
     for (let k = 0; k < s.len; k++) {
       const r = s.dir === "across" ? s.row : s.row + k;
@@ -807,6 +948,59 @@ function checkCrosswordWords() {
     }
   });
 }
+peekProviders.crossword = () => {
+  if (!cwPuzzle) return null;
+  const lines = cwPuzzle.starts.map(s => {
+    let word = "";
+    for (let k = 0; k < s.len; k++) {
+      const r = s.dir === "across" ? s.row : s.row + k;
+      const c = s.dir === "across" ? s.col + k : s.col;
+      word += cwPuzzle.grid[r][c];
+    }
+    return `${s.num} ${s.dir}: ${word}`;
+  });
+  return `📋 ${cwPuzzle.title}\n` + lines.join("\n");
+};
+
+/* ============================================================
+   Peek button — press-and-hold to reveal current answer
+   ============================================================ */
+const peekBtn = document.getElementById("peek-btn");
+const peekBubble = document.getElementById("peek-bubble");
+
+function showPeek() {
+  const game = slides[current].dataset.game;
+  const fn = peekProviders[game];
+  const text = fn ? fn() : null;
+  if (!text) {
+    peekBubble.innerHTML = `<span class="peek-title">Sneak peek</span>No answer to peek on this slide 😅`;
+  } else {
+    peekBubble.innerHTML = `<span class="peek-title">Sneak peek</span>${escapeHtml(text)}`;
+  }
+  peekBubble.classList.add("show");
+  peekBtn.classList.add("held");
+}
+function hidePeek() {
+  peekBubble.classList.remove("show");
+  peekBtn.classList.remove("held");
+}
+
+["mousedown", "touchstart"].forEach(ev =>
+  peekBtn.addEventListener(ev, (e) => { e.preventDefault(); showPeek(); })
+);
+["mouseup", "mouseleave", "touchend", "touchcancel", "blur"].forEach(ev =>
+  peekBtn.addEventListener(ev, hidePeek)
+);
+// Keyboard: hold P to peek
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === "p" || e.key === "P") {
+    if (!peekBubble.classList.contains("show")) showPeek();
+  }
+});
+document.addEventListener("keyup", (e) => {
+  if (e.key === "p" || e.key === "P") hidePeek();
+});
 
 /* ---------- Utils ---------- */
 function shuffle(arr) {
@@ -817,7 +1011,7 @@ function shuffle(arr) {
   return arr;
 }
 function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
 /* ---------- Boot ---------- */

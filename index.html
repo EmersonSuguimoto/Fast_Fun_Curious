@@ -167,8 +167,8 @@
 
     <!-- 12. Crossword -->
     <section class="slide" data-slide="12" data-game="crossword">
-      <h2 class="slide-title">🍌 Banana Hunt Crossword</h2>
-      <p class="slide-sub">Click a cell, then click a letter. Fill all words to win!</p>
+      <h2 class="slide-title">🍌 Banana Hunt Crossword <span class="cw-puzzle-title" id="cw-title"></span></h2>
+      <p class="slide-sub">Click a cell, then click a letter. Fill all words to win! (A different puzzle loads every visit.)</p>
       <div class="crossword-wrap">
         <div class="crossword-grid" id="cw-grid"></div>
         <div class="crossword-side">
@@ -194,6 +194,13 @@
     </section>
 
   </main>
+
+  <!-- Peek (press-and-hold to reveal answer) -->
+  <button id="peek-btn" class="peek-btn" aria-label="Sneak peek the answer">
+    <span class="peek-eye">👀</span>
+    <span class="peek-label">Peek</span>
+  </button>
+  <div id="peek-bubble" class="peek-bubble" aria-hidden="true"></div>
 
   <!-- Nav -->
   <nav class="nav">

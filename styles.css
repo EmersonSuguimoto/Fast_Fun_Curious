@@ -435,6 +435,18 @@ html, body {
 .cloud-word.placed { display: none; }
 
 /* ========== Crossword ========== */
+.cw-puzzle-title {
+  display: inline-block;
+  margin-left: 0.6rem;
+  font-size: 0.6em;
+  background: var(--denim);
+  color: #fff;
+  padding: 0.2em 0.7em;
+  border-radius: 999px;
+  vertical-align: middle;
+  text-shadow: none;
+}
+
 .crossword-wrap {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -545,6 +557,87 @@ html, body {
 .flash-bad { animation: flashBad 0.5s; }
 @keyframes flashBad {
   50% { background: #ffe0e6; }
+}
+
+/* ========== Peek button ========== */
+.peek-btn {
+  position: fixed;
+  left: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem 0.6rem 0.8rem;
+  background: #fff;
+  border: 4px solid var(--denim);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--denim-deep);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.1s, background 0.15s;
+}
+.peek-btn:hover { transform: translateY(-2px) rotate(-2deg); background: #FFF8C8; }
+.peek-btn:active,
+.peek-btn.held {
+  background: var(--yellow);
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+}
+.peek-btn .peek-eye { font-size: 1.4rem; line-height: 1; animation: peekBlink 3s infinite; }
+@keyframes peekBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%, 97%      { transform: scaleY(0.1); }
+}
+
+.peek-bubble {
+  position: fixed;
+  left: 1.2rem;
+  bottom: 5.2rem;
+  z-index: 70;
+  max-width: min(560px, calc(100vw - 2.4rem));
+  background: var(--denim);
+  color: #fff;
+  padding: 0.9rem 1.2rem;
+  border-radius: 14px;
+  border: 3px solid var(--denim-deep);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+  font-size: 1.05rem;
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.18s ease;
+  white-space: pre-line;
+  text-align: left;
+}
+.peek-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 28px;
+  width: 0; height: 0;
+  border: 10px solid transparent;
+  border-top-color: var(--denim);
+  border-bottom: 0;
+}
+.peek-bubble.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.peek-bubble .peek-title {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 0.2rem;
 }
 
 /* ========== Nav ========== */
