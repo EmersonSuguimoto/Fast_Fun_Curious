@@ -376,6 +376,155 @@ const GAMES = {
   crosswordPool: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""),
 };
 
+/* ============================================================
+   Sound effects — synthesized in-browser (no audio files).
+   Web Audio API for tones / whooshes; speechSynthesis for short
+   Minion-style babble. Toggle on/off with the 🔊 button or M key.
+   ============================================================ */
+const SFX = {
+  ctx: null,
+  enabled: localStorage.getItem("sfxEnabled") !== "false",
+  babbleProb: 0.65,        // chance of a babble word firing on a tone
+  lastBabbleAt: 0,          // throttle so babbles don't pile up
+
+  // Short, generic Minion-flavoured exclamations
+  happy:   ["Bello!", "Banana!", "Yay!", "Whee!", "Para tu!", "Hoo-ray!", "Boop boop!", "Yummy!"],
+  sad:     ["Bee-doo bee-doo!", "Aww…", "Whaa…", "Ohh no!", "Boohoo!"],
+  hello:   ["Bello!", "Hello-eh!", "Hi-ya!"],
+  cheer:   ["Wheeee!", "Banana!", "Yippee!", "Woo-hoo!"],
+
+  init() {
+    if (this.ctx) return this.ctx;
+    try {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (C) this.ctx = new C();
+    } catch (_) { this.ctx = null; }
+    return this.ctx;
+  },
+  resume() { if (this.ctx && this.ctx.state === "suspended") this.ctx.resume(); },
+
+  setEnabled(on) {
+    this.enabled = on;
+    localStorage.setItem("sfxEnabled", on ? "true" : "false");
+    if (!on && "speechSynthesis" in window) speechSynthesis.cancel();
+    const icon = document.getElementById("sfx-icon");
+    const btn  = document.getElementById("sfx-toggle");
+    if (icon) icon.textContent = on ? "🔊" : "🔇";
+    if (btn)  btn.classList.toggle("muted", !on);
+  },
+  toggle() { this.setEnabled(!this.enabled); },
+
+  // ---- low-level oscillator with envelope ----
+  tone(freq, dur = 0.15, type = "sine", vol = 0.18, slideTo = null) {
+    if (!this.enabled) return;
+    const ctx = this.init();
+    if (!ctx) return;
+    this.resume();
+    const t0 = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t0);
+    if (slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), t0 + dur);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.05);
+  },
+
+  // ---- short noise burst, useful for whooshes/whistles ----
+  noise(dur = 0.25, freqStart = 2200, freqEnd = 400, vol = 0.12) {
+    if (!this.enabled) return;
+    const ctx = this.init();
+    if (!ctx) return;
+    this.resume();
+    const t0 = ctx.currentTime;
+    const buf = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * dur)), ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.Q.value = 1.2;
+    filter.frequency.setValueAtTime(freqStart, t0);
+    filter.frequency.exponentialRampToValueAtTime(Math.max(80, freqEnd), t0 + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(0.0008, t0 + dur);
+    src.connect(filter).connect(g).connect(ctx.destination);
+    src.start(t0); src.stop(t0 + dur + 0.05);
+  },
+
+  // ---- speak a quick high-pitched gibberish word ----
+  babble(set, force = false) {
+    if (!this.enabled || !("speechSynthesis" in window)) return;
+    if (!force && Math.random() > this.babbleProb) return;
+    const now = Date.now();
+    if (!force && now - this.lastBabbleAt < 600) return;     // throttle
+    this.lastBabbleAt = now;
+    const list = this[set] || this.happy;
+    const phrase = list[Math.floor(Math.random() * list.length)];
+    const u = new SpeechSynthesisUtterance(phrase);
+    u.lang = "en-US";
+    u.rate = 1.45;     // fast — minion-like
+    u.pitch = 1.95;    // high — minion-like
+    u.volume = 0.7;
+    const v = speechSynthesis.getVoices().find(v => v.lang.startsWith("en"));
+    if (v) u.voice = v;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  },
+
+  // ---- composed effects ----
+  correct() {
+    // Rising arpeggio: G5 → B5 → E6
+    this.tone(784, 0.08, "triangle", 0.18);
+    setTimeout(() => this.tone(988, 0.08, "triangle", 0.18), 80);
+    setTimeout(() => this.tone(1318, 0.18, "triangle", 0.22), 160);
+    setTimeout(() => this.babble("happy"), 280);
+  },
+  wrong() {
+    // Sad descending bonk
+    this.tone(330, 0.12, "sawtooth", 0.16, 220);
+    setTimeout(() => this.tone(196, 0.18, "sawtooth", 0.16, 140), 120);
+    setTimeout(() => this.babble("sad"), 50);
+  },
+  whoosh() {
+    this.noise(0.22, 2400, 350, 0.10);
+  },
+  pop() {
+    this.tone(620, 0.05, "square", 0.12, 480);
+  },
+  bell() {
+    this.tone(1320, 0.05, "triangle", 0.10);
+    setTimeout(() => this.tone(1760, 0.06, "triangle", 0.10), 40);
+  },
+  shh() {
+    this.noise(0.15, 6000, 4000, 0.05);
+  },
+  hello() {
+    this.tone(660, 0.08, "triangle", 0.16);
+    setTimeout(() => this.tone(880, 0.12, "triangle", 0.18), 90);
+    setTimeout(() => this.babble("hello", true), 140);
+  },
+  fanfare() {
+    // Short flourish + cheer babble
+    [523, 659, 784, 1047].forEach((f, i) =>
+      setTimeout(() => this.tone(f, i === 3 ? 0.4 : 0.1, "triangle", 0.22), i * 100));
+    setTimeout(() => this.babble("cheer", true), 500);
+    setTimeout(() => this.babble("happy", true), 1100);
+  },
+  boo() {
+    this.tone(220, 0.25, "sawtooth", 0.14, 130);
+  },
+  click() {
+    this.tone(900, 0.03, "square", 0.08);
+  },
+};
+SFX.setEnabled(SFX.enabled); // sync icon
+
 /* ---------- Score & state ---------- */
 let score = 0;
 const scoreEl = document.getElementById("score");
@@ -389,6 +538,7 @@ function addScore(n = 1) {
   scoreEl.parentElement.classList.add("score-pop");
   showBello();
   burstConfetti();
+  SFX.correct();
 }
 function setScore(n) { score = n; scoreEl.textContent = n; }
 
@@ -418,6 +568,7 @@ function burstConfetti(n = 36) {
 function flashBad(target) {
   target.classList.add("flash-bad");
   setTimeout(() => target.classList.remove("flash-bad"), 500);
+  SFX.wrong();
 }
 
 /* ---------- Speech synthesis helper ---------- */
@@ -448,13 +599,18 @@ let current = 0;
 
 function showSlide(i) {
   if (i < 0 || i >= slides.length) return;
+  const isTransition = i !== current;
   slides[current].classList.remove("active");
   current = i;
   slides[current].classList.add("active");
   curEl.textContent = current + 1;
   hidePeek();
+  if (isTransition) SFX.whoosh();
   const game = slides[current].dataset.game;
   if (initializers[game]) initializers[game]();
+  if (game === "welcome" && isTransition) {
+    SFX.hello();
+  }
   if (game === "goodbye") {
     finalScoreEl.textContent = score;
     const msg = document.getElementById("final-msg");
@@ -462,6 +618,7 @@ function showSlide(i) {
     else if (score >= 12) msg.textContent = "💛 Great work — top minion energy!";
     else if (score >= 6)  msg.textContent = "👍 Nice effort — keep practicing!";
     else                  msg.textContent = "🌱 Good start — let's go again!";
+    setTimeout(() => SFX.fanfare(), 400);
   }
 }
 function next() { if (current < slides.length - 1) showSlide(current + 1); }
@@ -749,11 +906,12 @@ actions["tw-yes"] = function () {
   twScored = true;
   addScore(1);
 };
-actions["tw-no"] = function () { /* no points */ };
+actions["tw-no"] = function () { SFX.boo(); };
 actions["tw-next"] = function () {
   twIndex = (twIndex + 1) % twList.length;
   twScored = false;
   document.getElementById("tw-text").textContent = twList[twIndex];
+  SFX.pop();
 };
 peekProviders.twister = () => twList.length ? twList[twIndex] : null;
 
@@ -1031,10 +1189,12 @@ function placeCwLetter(cell, letter) {
   if (num) cell.appendChild(num);
   if (letter === cell.dataset.answer) {
     cell.classList.add("correct");
+    SFX.bell();
   } else {
     cell.classList.remove("correct");
     cell.classList.add("flash-bad");
     setTimeout(() => cell.classList.remove("flash-bad"), 500);
+    SFX.pop();
   }
   checkCrosswordWords();
 }
@@ -1087,6 +1247,7 @@ function showPeek() {
   }
   peekBubble.classList.add("show");
   peekBtn.classList.add("held");
+  SFX.shh();
 }
 function hidePeek() {
   peekBubble.classList.remove("show");
@@ -1109,6 +1270,37 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   if (e.key === "p" || e.key === "P") hidePeek();
 });
+
+/* ---------- Mute toggle ---------- */
+const sfxBtn = document.getElementById("sfx-toggle");
+if (sfxBtn) {
+  sfxBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    SFX.toggle();
+    if (SFX.enabled) SFX.bell(); // confirm chime
+  });
+}
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  if (e.key === "m" || e.key === "M") {
+    SFX.toggle();
+    if (SFX.enabled) SFX.bell();
+  }
+});
+
+/* Web Audio needs a user gesture before it will play; the first
+   click/keypress anywhere unlocks the context. */
+function unlockAudio() {
+  SFX.init();
+  SFX.resume();
+  if (SFX.enabled && slides[current].dataset.game === "welcome") {
+    setTimeout(() => SFX.hello(), 60);
+  }
+  document.removeEventListener("click", unlockAudio, true);
+  document.removeEventListener("keydown", unlockAudio, true);
+}
+document.addEventListener("click", unlockAudio, true);
+document.addEventListener("keydown", unlockAudio, true);
 
 /* ---------- Utils ---------- */
 function shuffle(arr) {
